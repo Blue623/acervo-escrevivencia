@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastrar Nova Memória | Painel</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: var(--gold); font-weight: bold; }
+    input, textarea { width: 100%; background: #141110; border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 4px; }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn-submit { background: var(--accent-primary); color: #fff; border: none; padding: 12px 24px; font-size: 1rem; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+    .btn-submit:hover { background: var(--accent-hover); }
+  </style>
+</head>
+<body>
+  <div class="container" style="max-width: 650px; margin-top: 40px;">
+    <h1>Cadastrar Registro Literário</h1>
+    <p class="subtitle" style="margin-bottom: 25px;">Adicione uma nova memória para o Escape Room</p>
+    
+    <form id="form-cadastro">
+      <div class="form-group">
+        <label>Título do Registro:</label>
+        <input type="text" id="titulo" placeholder="Ex: Registro #04: O Canto de Juventina" required>
+      </div>
+      <div class="form-group">
+        <label>Personagem / Voz:</label>
+        <input type="text" id="personagem" placeholder="Ex: Pérola" required>
+      </div>
+      <div class="form-group">
+        <label>Chave Secreta (Senha que o jogador vai digitar):</label>
+        <input type="text" id="chave_secreta" placeholder="Ex: trilho de ferro" required>
+      </div>
+      <div class="form-group">
+        <label>Prévia Bloqueada (Texto visível antes de acertar):</label>
+        <textarea id="conteudo_bloqueado" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Texto Revelado (Trecho literário liberado):</label>
+        <textarea id="conteudo_revelado" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Pista para a Sala Física (Próximo passo):</label>
+        <textarea id="pista_proximo_passo" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Ordem de Exibição (Número inteiro):</label>
+        <input type="number" id="ordem" value="1" required>
+      </div>
+      <button type="submit" class="btn-submit">Salvar Registro</button>
+      <a href="index.html" style="color: var(--text-muted); margin-left: 15px; text-decoration: none;">Voltar ao Terminal</a>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        titulo: document.getElementById('titulo').value,
+        personagem: document.getElementById('personagem').value,
+        chave_secreta: document.getElementById('chave_secreta').value,
+        conteudo_bloqueado: document.getElementById('conteudo_bloqueado').value,
+        conteudo_revelado: document.getElementById('conteudo_revelado').value,
+        pista_proximo_passo: document.getElementById('pista_proximo_passo').value,
+        ordem: parseInt(document.getElementById('ordem').value)
+      };
+
+      try {
+        const res = await fetch('http://localhost:8000/api/memorias/cadastrar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          alert('Memória cadastrada com sucesso!');
+          window.location.href = 'index.html';
+        } else {
+          alert('Erro ao cadastrar registro.');
+        }
+      } catch (err) {
+        alert('Erro ao conectar com a API.');
+      }
+    });
+  </script>
+</body>
+</html>

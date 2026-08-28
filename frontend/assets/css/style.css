@@ -1,0 +1,195 @@
+:root {
+  --bg-main: #141110;
+  --bg-card: #201a17;
+  --bg-card-unlocked: #2b221c;
+  --border-color: #4a382c;
+  --text-main: #ebdcd0;
+  --text-muted: #a69588;
+  --accent-primary: #b86230;
+  --accent-hover: #d9783f;
+  --gold: #d4a359;
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Segoe UI', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding-bottom: 50px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header */
+.header {
+  border-bottom: 2px solid var(--border-color);
+  padding: 25px 0;
+  margin-bottom: 35px;
+  background: rgba(20, 17, 16, 0.95);
+}
+
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+h1 {
+  font-family: var(--font-serif);
+  letter-spacing: 2px;
+  font-size: 1.8rem;
+  color: var(--gold);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.btn-reset {
+  background: transparent;
+  border: 1px solid #733434;
+  color: #d67c7c;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.btn-reset:hover {
+  background: #733434;
+  color: #fff;
+}
+
+/* Grid de Cards */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+.card {
+  border-radius: 8px;
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.card.locked {
+  background-color: var(--bg-card);
+  border-style: dashed;
+}
+
+.card.unlocked {
+  background-color: var(--bg-card-unlocked);
+  border-color: var(--accent-primary);
+}
+
+/* Badges */
+.badge {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.badge-locked {
+  background: #3b2820;
+  color: #baa295;
+}
+
+.badge-unlocked {
+  background: var(--accent-primary);
+  color: #fff;
+}
+
+.card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.card .author {
+  font-size: 0.9rem;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.card .content {
+  font-family: var(--font-serif);
+  font-style: italic;
+  margin: 15px 0;
+  color: #f5ece4;
+}
+
+.card .clue {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-left: 3px solid var(--gold);
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+/* Formulário de Desbloqueio */
+.form-unlock {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.form-unlock input {
+  flex: 1;
+  background: #141110;
+  border: 1px solid var(--border-color);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.form-unlock input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.form-unlock button {
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.form-unlock button:hover {
+  background: var(--accent-hover);
+}
