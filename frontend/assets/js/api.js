@@ -1,32 +1,34 @@
-const API_BASE_URL = 'https://acervo-escrevivencia.onrender.com/api';
+const API_BASE_URL = 'https://acervo-escrevivencia.onrender.com/api'; // Ajuste conforme a sua URL exata
 
-async function fetchMemorias() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/memorias`);
-        if (!response.ok) throw new Error('Erro ao carregar o acervo');
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        return [];
+document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    titulo: document.getElementById('titulo').value,
+    personagem: document.getElementById('personagem').value,
+    chave_secreta: document.getElementById('chave_secreta').value,
+    previa_bloqueada: document.getElementById('previa_bloqueada').value,
+    texto_revelado: document.getElementById('texto_revelado').value,
+    pista: document.getElementById('pista').value,
+    ordem: parseInt(document.getElementById('ordem').value, 10)
+  };
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/memorias/cadastrar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      alert('Enigma cadastrado com sucesso!');
+      document.getElementById('form-cadastro').reset();
+    } else {
+      const err = await res.json();
+      alert(`Erro ao cadastrar: ${JSON.stringify(err.detail || err)}`);
     }
-}
-
-async function enviarDesbloqueio(memoriaId, chave) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/desbloquear`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ memoria_id: memoriaId, chave: chave })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || 'Chave incorreta');
-        return { sucesso: true, dados: data };
-    } catch (error) {
-        return { sucesso: false, mensagem: error.message };
-    }
-}
-
-async function resetarJogo() {
-    await fetch(`${API_BASE_URL}/admin/reset`, { method: 'POST' });
-    location.reload();
-}
+  } catch (error) {
+    console.error('Erro de conexão:', error);
+    alert('Erro ao conectar com a API. Verifique se o servidor está acordado.');
+  }
+});
