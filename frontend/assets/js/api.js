@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://acervo-escrevivencia.onrender.com/api'; // Ajuste conforme a sua URL exata
+const API_BASE_URL = 'https://acervo-escrevivencia.onrender.com'; // Ajuste conforme a sua URL exata
 
 document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
   e.preventDefault();
