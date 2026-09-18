@@ -66,7 +66,7 @@
       };
 
       try {
-        const res = await fetch('http://localhost:8000/api/memorias/cadastrar', {
+        const res = await fetch('https://acervo-escrevivencia.onrender.com', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
