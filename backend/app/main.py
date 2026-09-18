@@ -5,6 +5,7 @@ from typing import List, Optional
 
 app = FastAPI(title="Acervo Escrevivência API")
 
+# Libera o acesso entre a Vercel e o Render (resolve o erro de preflight/CORS)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Schemas de validação
+# Schemas de validação de dados
 class MemoriaCreate(BaseModel):
     titulo: str
     personagem: str
@@ -27,12 +28,16 @@ class DesbloqueioRequest(BaseModel):
     memoria_id: int
     chave: str
 
-# Base vazia: nenhum enigma nasce pré-cadastrado no código
+# Base em memória vazia para receber cadastros dinâmicos
 db_memorias = []
+
+@app.get("/")
+def root():
+    return {"status": "API Acervo Escrevivência online"}
 
 @app.get("/api/memorias")
 def get_memorias():
-    # Retorna estritamente o que foi cadastrado via tela de cadastro
+    # Retorna os cards ordenados pela ordem definida no cadastro
     return sorted(db_memorias, key=lambda x: x["ordem"])
 
 @app.post("/api/memorias/cadastrar", status_code=status.HTTP_201_CREATED)
@@ -58,6 +63,7 @@ def post_desbloquear(dados: DesbloqueioRequest):
     if not memoria:
         raise HTTPException(status_code=404, detail="Registro não encontrado.")
     
+    # Compara a chave ignorando maiúsculas/minúsculas e espaços
     if memoria["chave_secreta"] == dados.chave.strip().lower():
         memoria["desbloqueado"] = True
         todos_destravados = len(db_memorias) > 0 and all(m["desbloqueado"] for m in db_memorias)
@@ -68,3 +74,9 @@ def post_desbloquear(dados: DesbloqueioRequest):
             "codigo_mestre": "CONCEICAO-1952" if todos_destravados else None
         }
     return {"sucesso": False, "mensagem": "Chave incorreta. Tente novamente."}
+
+@app.post("/api/admin/reset")
+def post_reset():
+    for m in db_memorias:
+        m["desbloqueado"] = False
+    return {"mensagem": "Todos os registros foram bloqueados novamente."}
