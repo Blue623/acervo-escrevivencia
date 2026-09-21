@@ -7,7 +7,7 @@
   <style>
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; color: var(--gold); font-weight: bold; }
-    input, textarea { width: 100%; background: #141110; border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 4px; }
+    input, textarea { width: 100%; background: #141110; border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 4px; box-sizing: border-box; }
     textarea { resize: vertical; min-height: 80px; }
     .btn-submit { background: var(--accent-primary); color: #fff; border: none; padding: 12px 24px; font-size: 1rem; border-radius: 4px; cursor: pointer; margin-top: 10px; }
     .btn-submit:hover { background: var(--accent-hover); }
@@ -33,15 +33,15 @@
       </div>
       <div class="form-group">
         <label>Prévia Bloqueada (Texto visível antes de acertar):</label>
-        <textarea id="conteudo_bloqueado" required></textarea>
+        <textarea id="previa_bloqueada" required></textarea>
       </div>
       <div class="form-group">
         <label>Texto Revelado (Trecho literário liberado):</label>
-        <textarea id="conteudo_revelado" required></textarea>
+        <textarea id="texto_revelado" required></textarea>
       </div>
       <div class="form-group">
         <label>Pista para a Sala Física (Próximo passo):</label>
-        <textarea id="pista_proximo_passo" required></textarea>
+        <textarea id="pista" required></textarea>
       </div>
       <div class="form-group">
         <label>Ordem de Exibição (Número inteiro):</label>
@@ -55,29 +55,34 @@
   <script>
     document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Mapeamento exato com o schema MemoriaCreate do FastAPI
       const payload = {
         titulo: document.getElementById('titulo').value,
         personagem: document.getElementById('personagem').value,
         chave_secreta: document.getElementById('chave_secreta').value,
-        conteudo_bloqueado: document.getElementById('conteudo_bloqueado').value,
-        conteudo_revelado: document.getElementById('conteudo_revelado').value,
-        pista_proximo_passo: document.getElementById('pista_proximo_passo').value,
-        ordem: parseInt(document.getElementById('ordem').value)
+        previa_bloqueada: document.getElementById('previa_bloqueada').value,
+        texto_revelado: document.getElementById('texto_revelado').value,
+        pista: document.getElementById('pista').value,
+        ordem: parseInt(document.getElementById('ordem').value, 10)
       };
 
       try {
-        const res = await fetch('https://acervo-escrevivencia.onrender.com', {
+        const res = await fetch('https://acervo-escrevivencia.onrender.com/api/memorias/cadastrar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+
         if (res.ok) {
           alert('Memória cadastrada com sucesso!');
           window.location.href = 'index.html';
         } else {
-          alert('Erro ao cadastrar registro.');
+          const errData = await res.json();
+          alert(`Erro ao cadastrar: ${JSON.stringify(errData.detail || errData)}`);
         }
       } catch (err) {
+        console.error('Falha de rede:', err);
         alert('Erro ao conectar com a API.');
       }
     });
