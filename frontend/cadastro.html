@@ -74,10 +74,12 @@
           body: JSON.stringify(payload)
         });
 
-        if (res.ok) {
-          alert('Memória cadastrada com sucesso!');
-          window.location.href = 'index.html';
-        } else {
+       if (res.ok) {
+      alert('Memória cadastrada com sucesso!');
+      document.getElementById('form-cadastro').reset(); // Limpa todos os campos
+      document.getElementById('titulo').focus(); // Posiciona o cursor no primeiro campo
+      }
+       else {
           const errData = await res.json();
           alert(`Erro ao cadastrar: ${JSON.stringify(errData.detail || errData)}`);
         }
