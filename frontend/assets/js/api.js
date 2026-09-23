@@ -1,34 +1,44 @@
-const API_BASE_URL = 'https://acervo-escrevivencia.onrender.com'; // Ajuste conforme a sua URL exata
+// URL base da sua API hospedada no Render
+const API_BASE_URL = 'https://acervo-escrevivencia.onrender.com';
 
-document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const payload = {
-    titulo: document.getElementById('titulo').value,
-    personagem: document.getElementById('personagem').value,
-    chave_secreta: document.getElementById('chave_secreta').value,
-    previa_bloqueada: document.getElementById('previa_bloqueada').value,
-    texto_revelado: document.getElementById('texto_revelado').value,
-    pista: document.getElementById('pista').value,
-    ordem: parseInt(document.getElementById('ordem').value, 10)
-  };
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/memorias/cadastrar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      alert('Enigma cadastrado com sucesso!');
-      document.getElementById('form-cadastro').reset();
-    } else {
-      const err = await res.json();
-      alert(`Erro ao cadastrar: ${JSON.stringify(err.detail || err)}`);
+/**
+ * Busca todas as memórias cadastradas no backend
+ * Endpoint: GET /api/memorias
+ */
+async function fetchMemorias() {
+  const response = await fetch(`${API_BASE_URL}/api/memorias`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
     }
-  } catch (error) {
-    console.error('Erro de conexão:', error);
-    alert('Erro ao conectar com a API. Verifique se o servidor está acordado.');
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erro na API: ${response.status} - ${response.statusText}`);
   }
-});
+
+  return await response.json();
+}
+
+/**
+ * Envia uma tentativa de desbloqueio para um enigma específico
+ * Endpoint: POST /api/desbloquear
+ */
+async function destravarMemoria(id, chave) {
+  const response = await fetch(`${API_BASE_URL}/api/desbloquear`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      memoria_id: id,
+      chave: chave
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erro ao validar chave: ${response.status}`);
+  }
+
+  return await response.json();
+}

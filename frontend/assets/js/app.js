@@ -1,85 +1,127 @@
-// frontend/assets/js/app.js
-
-document.addEventListener('DOMContentLoaded', async () => {
-    carregarAcervo();
+document.addEventListener('DOMContentLoaded', () => {
+  carregarAcervo();
 });
 
+/**
+ * Carrega a lista de enigmas e renderiza no container
+ */
 async function carregarAcervo() {
-    const grid = document.getElementById('grid-memorias');
-    grid.innerHTML = '<p style="color: var(--text-muted);">Carregando registros do arquivo...</p>';
-    
-    const memorias = await fetchMemorias();
-    grid.innerHTML = '';
+  // Procura pelo container na tela (suporta os IDs comumente usados)
+  const container = document.getElementById('cards-container') || document.getElementById('acervo-container');
+  
+  if (!container) {
+    console.error('Container de cards não encontrado na página.');
+    return;
+  }
 
-    if (memorias.length === 0) {
-        grid.innerHTML = '<p style="color: var(--text-muted);">Nenhum registro encontrado no acervo.</p>';
-        return;
+  try {
+    const memorias = await fetchMemorias();
+
+    container.innerHTML = '';
+
+    // Estado quando não há enigmas salvos na API
+    if (!memorias || memorias.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #a0a0a0;">
+          <p>Nenhum enigma literário registrado no Acervo ainda.</p>
+          <p style="margin-top: 10px;">
+            <a href="cadastro.html" style="color: var(--accent-primary, #e67e22); text-decoration: underline;">
+              Clique aqui para cadastrar um novo enigma.
+            </a>
+          </p>
+        </div>
+      `;
+      return;
     }
 
-    // Renderiza cada card de memória
-    memorias.forEach(memoria => {
-        const card = document.createElement('div');
-        card.className = `card ${memoria.desbloqueado ? 'unlocked' : 'locked'}`;
+    // Renderiza cada enigma cadastrado
+    memorias.forEach((item) => {
+      const card = document.createElement('div');
+      card.className = `card ${item.desbloqueado ? 'destravado' : 'bloqueado'}`;
+      card.id = `card-${item.id}`;
 
-        if (memoria.desbloqueado) {
-            card.innerHTML = `
-                <span class="badge badge-unlocked">DESBLOQUEADO</span>
-                <h3>${memoria.titulo}</h3>
-                <p class="author">Voz: <strong>${memoria.personagem}</strong></p>
-                <div class="content">"${memoria.conteudo_revelado}"</div>
-                <div class="clue"><strong>Próximo Passo:</strong> ${memoria.pista_proximo_passo}</div>
-            `;
-        } else {
-            card.innerHTML = `
-                <span class="badge badge-locked">BLOQUEADO</span>
-                <h3>${memoria.titulo}</h3>
-                <p class="preview" style="color: var(--text-muted); margin-bottom: 15px;">${memoria.conteudo_bloqueado}</p>
-                <div class="form-unlock">
-                    <input type="text" id="input-${memoria.id}" placeholder="Chave de acesso...">
-                    <button type="button" onclick="tentarDesbloqueio(${memoria.id})">Decodificar</button>
-                </div>
-            `;
-        }
-        grid.appendChild(card);
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="badge">Fase ${item.ordem}</span>
+          <h3>${item.titulo}</h3>
+          <p class="personagem"><strong>Voz:</strong> ${item.personagem}</p>
+        </div>
+        
+        <div class="card-body">
+          <p class="pista"><strong>Pista:</strong> ${item.pista}</p>
+          <div class="conteudo-texto">
+            ${item.desbloqueado 
+              ? `<p class="texto-revelado">${item.texto_revelado}</p>` 
+              : `<p class="texto-bloqueado">${item.previa_bloqueada}</p>`
+            }
+          </div>
+        </div>
+
+        <div class="card-footer">
+          ${!item.desbloqueado ? `
+            <div class="form-destravar">
+              <input type="text" id="input-${item.id}" placeholder="Palavra-chave..." autocomplete="off" />
+              <button type="button" onclick="executarDesbloqueio(${item.id})">Desbloquear</button>
+            </div>
+          ` : '<span class="status-concluido">✔ Concluído</span>'}
+        </div>
+      `;
+
+      container.appendChild(card);
     });
 
-    // Verifica se todos os registros foram desbloqueados para exibir o código final
-    const todosDesbloqueados = memorias.length > 0 && memorias.every(m => m.desbloqueado);
-
-    if (todosDesbloqueados) {
-        const victoryBanner = document.createElement('div');
-        victoryBanner.className = 'card unlocked';
-        victoryBanner.style.gridColumn = '1 / -1';
-        victoryBanner.style.textAlign = 'center';
-        victoryBanner.style.border = '2px solid var(--gold)';
-        victoryBanner.style.marginBottom = '20px';
-        victoryBanner.innerHTML = `
-            <span class="badge badge-unlocked" style="margin: 0 auto 10px auto;">ARQUIVO COMPLETO</span>
-            <h2 style="color: var(--gold); margin-bottom: 10px; font-family: var(--font-serif);">TODAS AS MEMÓRIAS FORAM RESGATADAS!</h2>
-            <p style="font-size: 1.05rem; margin-bottom: 15px; color: var(--text-main);">A escrevivência rompeu o silêncio do arquivo e reconstruiu os caminhos de Fio Jasmim.</p>
-            <div class="clue" style="font-size: 1.15rem; background: rgba(0, 0, 0, 0.4); display: inline-block; padding: 12px 24px; border-left: none; border: 1px dashed var(--gold);">
-                <strong>CÓDIGO DE LIBERAÇÃO DA SALA:</strong> <span style="color: var(--gold); font-weight: bold; letter-spacing: 2px;">CONCEICAO-1952</span>
-            </div>
-        `;
-        grid.prepend(victoryBanner);
-    }
+  } catch (error) {
+    console.error('Falha ao renderizar acervo:', error);
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: #ff6b6b;">
+        <p>Não foi possível conectar ao servidor do Acervo.</p>
+        <p style="font-size: 0.85rem; color: #999; margin-top: 5px;">Se a API estiver em repouso no Render, aguarde 30 segundos e recarregue a página.</p>
+      </div>
+    `;
+  }
 }
 
-async function tentarDesbloqueio(id) {
-    const input = document.getElementById(`input-${id}`);
-    const chave = input.value.trim();
-    
-    if (!chave) {
-        alert('Digite uma chave antes de decodificar!');
-        return;
-    }
+/**
+ * Função acionada pelo botão do card para testar a senha
+ */
+async function executarDesbloqueio(id) {
+  const input = document.getElementById(`input-${id}`);
+  if (!input) return;
 
-    const res = await enviarDesbloqueio(id, chave);
-    
-    if (res.sucesso) {
-        alert(res.dados.mensagem);
-        carregarAcervo();
+  const chave = input.value.trim();
+  if (!chave) {
+    alert('Por favor, digite a palavra-chave.');
+    input.focus();
+    return;
+  }
+
+  try {
+    const resultado = await destravarMemoria(id, chave);
+
+    if (resultado.sucesso) {
+      alert('Chave correta! O trecho literário foi revelado.');
+      
+      // Recarrega os cards na tela para mostrar o conteúdo aberto
+      await carregarAcervo();
+
+      // Se todas as fases foram concluídas
+      if (resultado.vitoria_geral) {
+        const banner = document.getElementById('banner-vitoria');
+        if (banner) {
+          banner.style.display = 'block';
+          const codMestre = document.getElementById('codigo-mestre');
+          if (codMestre) codMestre.textContent = resultado.codigo_mestre;
+        } else {
+          alert(`PARABÉNS! Você destravou todos os enigmas!\nCÓDIGO MESTRE: ${resultado.codigo_mestre}`);
+        }
+      }
     } else {
-        alert(res.mensagem);
+      alert(resultado.mensagem || 'Chave incorreta. Tente novamente!');
+      input.value = '';
+      input.focus();
     }
+  } catch (err) {
+    console.error('Erro na requisição de desbloqueio:', err);
+    alert('Erro ao comunicar com a API para desbloquear.');
+  }
 }
