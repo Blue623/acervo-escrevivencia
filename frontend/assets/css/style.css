@@ -193,3 +193,192 @@ h1 {
 .form-unlock button:hover {
   background: var(--accent-hover);
 }
+
+/* ============================================================
+   PADRONIZAÇÃO DOS CARDS DE ENIGMA
+   ============================================================ */
+
+.enigma-card {
+  background: #141110;
+  border: 1px solid #3d322c;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  font-family: inherit;
+  color: #e6e6e6;
+}
+
+.enigma-card:hover {
+  border-color: var(--gold, #d4af37);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.15);
+}
+
+.card-header {
+  border-bottom: 1px solid #28211e;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.card-badge {
+  display: inline-block;
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold, #d4af37);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  margin: 0 0 8px 0;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.card-voice {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #a89f91;
+}
+
+.card-voice strong {
+  color: var(--gold, #d4af37);
+}
+
+.card-voice span {
+  color: #fff;
+}
+
+/* Área de Pista e Conteúdo */
+.pista-container {
+  background: #1c1715;
+  border-left: 3px solid var(--gold, #d4af37);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: 0 4px 4px 0;
+}
+
+.pista-label {
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--gold, #d4af37);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.pista-texto {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #ddd;
+  line-height: 1.4;
+}
+
+.conteudo-container {
+  margin-bottom: 20px;
+}
+
+.texto-bloqueado-box,
+.texto-revelado-box {
+  background: #0f0d0c;
+  border: 1px dashed #3d322c;
+  padding: 14px 16px;
+  border-radius: 6px;
+}
+
+.texto-revelado-box {
+  border-color: #27ae60;
+  background: rgba(39, 174, 96, 0.08);
+}
+
+.status-tag {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #7d726b;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.texto-revelado-box .status-tag {
+  color: #2ecc71;
+}
+
+.texto-bloqueado-box p,
+.texto-revelado-box p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #bbb;
+}
+
+.texto-revelado-box p {
+  color: #f1f1f1;
+}
+
+/* Formulário de Desbloqueio */
+.form-desbloqueio {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input-chave {
+  flex: 1;
+  min-width: 220px;
+  background: #0d0b0a;
+  border: 1px solid #3d322c;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input-chave:focus {
+  border-color: var(--gold, #d4af37);
+}
+
+.btn-desbloquear {
+  background: #8b261d;
+  color: #fff;
+  border: 1px solid #a33025;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-desbloquear:hover {
+  background: #a82e22;
+}
+
+.btn-desbloquear:active {
+  transform: scale(0.98);
+}
+
+.status-sucesso-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #2ecc71;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: rgba(46, 204, 113, 0.1);
+  border: 1px solid rgba(46, 204, 113, 0.3);
+}

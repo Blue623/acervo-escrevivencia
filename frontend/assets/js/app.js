@@ -37,33 +37,56 @@ async function carregarAcervo() {
     // Renderiza cada enigma cadastrado
     memorias.forEach((item) => {
       const card = document.createElement('div');
-      card.className = `card ${item.desbloqueado ? 'destravado' : 'bloqueado'}`;
+      card.className = `enigma-card ${item.desbloqueado ? 'destravado' : 'bloqueado'}`;
       card.id = `card-${item.id}`;
 
       card.innerHTML = `
         <div class="card-header">
-          <span class="badge">Fase ${item.ordem}</span>
-          <h3>${item.titulo}</h3>
-          <p class="personagem"><strong>Voz:</strong> ${item.personagem}</p>
+          <span class="card-badge">Fase ${item.ordem}</span>
+          <h2 class="card-title">${item.titulo}</h2>
+          <p class="card-voice"><strong>Voz:</strong> <span>${item.personagem}</span></p>
         </div>
-        
+
         <div class="card-body">
-          <p class="pista"><strong>Pista:</strong> ${item.pista}</p>
-          <div class="conteudo-texto">
+          <div class="pista-container">
+            <span class="pista-label">Pista:</span>
+            <p class="pista-texto">${item.pista}</p>
+          </div>
+
+          <div class="conteudo-container">
             ${item.desbloqueado 
-              ? `<p class="texto-revelado">${item.texto_revelado}</p>` 
-              : `<p class="texto-bloqueado">${item.previa_bloqueada}</p>`
+              ? `<div class="texto-revelado-box">
+                   <span class="status-tag">Fragmento Revelado</span>
+                   <p>${item.texto_revelado}</p>
+                 </div>` 
+              : `<div class="texto-bloqueado-box">
+                   <span class="status-tag">Arquivo Criptografado</span>
+                   <p>${item.previa_bloqueada}</p>
+                 </div>`
             }
           </div>
         </div>
 
         <div class="card-footer">
           ${!item.desbloqueado ? `
-            <div class="form-destravar">
-              <input type="text" id="input-${item.id}" placeholder="Palavra-chave..." autocomplete="off" />
-              <button type="button" onclick="executarDesbloqueio(${item.id})">Desbloquear</button>
+            <div class="form-desbloqueio">
+              <input 
+                type="text" 
+                id="input-${item.id}" 
+                class="input-chave" 
+                placeholder="Digite a palavra-chave..." 
+                autocomplete="off"
+                onkeydown="if(event.key === 'Enter') executarDesbloqueio(${item.id})"
+              />
+              <button type="button" class="btn-desbloquear" onclick="executarDesbloqueio(${item.id})">
+                Desbloquear
+              </button>
             </div>
-          ` : '<span class="status-concluido">✔ Concluído</span>'}
+          ` : `
+            <div class="status-sucesso-badge">
+              <span>✔ Concluído com Sucesso</span>
+            </div>
+          `}
         </div>
       `;
 
