@@ -1,12 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
   carregarAcervo();
+
+  // Vincula a função de reiniciar ao botão estilizado do cabeçalho se ele tiver o id 'btn-reiniciar'
+  const btnReset = document.getElementById('btn-reiniciar');
+  if (btnReset) {
+    btnReset.addEventListener('click', reiniciarRodada);
+  }
 });
 
 /**
- * Carrega a lista de enigmas e renderiza no container
+ * Busca e renderiza os cards na página inicial
  */
 async function carregarAcervo() {
-  // Procura pelo container na tela (suporta os IDs comumente usados)
   const container = document.getElementById('cards-container') || document.getElementById('acervo-container');
   
   if (!container) {
@@ -19,14 +24,13 @@ async function carregarAcervo() {
 
     container.innerHTML = '';
 
-    // Estado quando não há enigmas salvos na API
     if (!memorias || memorias.length === 0) {
       container.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #a0a0a0;">
           <p>Nenhum enigma literário registrado no Acervo ainda.</p>
           <p style="margin-top: 10px;">
-            <a href="cadastro.html" style="color: var(--accent-primary, #e67e22); text-decoration: underline;">
-              Clique aqui para cadastrar um novo enigma.
+            <a href="cadastro.html" style="color: var(--gold, #d4af37); text-decoration: underline;">
+              Cadastrar um novo enigma no painel
             </a>
           </p>
         </div>
@@ -34,7 +38,6 @@ async function carregarAcervo() {
       return;
     }
 
-    // Renderiza cada enigma cadastrado
     memorias.forEach((item) => {
       const card = document.createElement('div');
       card.className = `enigma-card ${item.desbloqueado ? 'destravado' : 'bloqueado'}`;
@@ -98,14 +101,14 @@ async function carregarAcervo() {
     container.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: #ff6b6b;">
         <p>Não foi possível conectar ao servidor do Acervo.</p>
-        <p style="font-size: 0.85rem; color: #999; margin-top: 5px;">Se a API estiver em repouso no Render, aguarde 30 segundos e recarregue a página.</p>
+        <p style="font-size: 0.85rem; color: #999; margin-top: 5px;">Se a API estiver acordando no Render, aguarde 30 segundos e recarregue a página.</p>
       </div>
     `;
   }
 }
 
 /**
- * Função acionada pelo botão do card para testar a senha
+ * Tenta destravar o enigma com a senha digitada
  */
 async function executarDesbloqueio(id) {
   const input = document.getElementById(`input-${id}`);
@@ -123,20 +126,10 @@ async function executarDesbloqueio(id) {
 
     if (resultado.sucesso) {
       alert('Chave correta! O trecho literário foi revelado.');
-      
-      // Recarrega os cards na tela para mostrar o conteúdo aberto
       await carregarAcervo();
 
-      // Se todas as fases foram concluídas
       if (resultado.vitoria_geral) {
-        const banner = document.getElementById('banner-vitoria');
-        if (banner) {
-          banner.style.display = 'block';
-          const codMestre = document.getElementById('codigo-mestre');
-          if (codMestre) codMestre.textContent = resultado.codigo_mestre;
-        } else {
-          alert(`PARABÉNS! Você destravou todos os enigmas!\nCÓDIGO MESTRE: ${resultado.codigo_mestre}`);
-        }
+        alert(`PARABÉNS! Todas as fases foram concluídas com sucesso!\nCÓDIGO MESTRE: ${resultado.codigo_mestre}`);
       }
     } else {
       alert(resultado.mensagem || 'Chave incorreta. Tente novamente!');
@@ -145,6 +138,32 @@ async function executarDesbloqueio(id) {
     }
   } catch (err) {
     console.error('Erro na requisição de desbloqueio:', err);
-    alert('Erro ao comunicar com a API para desbloquear.');
+    alert('Erro ao tentar desbloquear.');
+  }
+}
+
+/**
+ * Reinicia o status de todos os enigmas para 'bloqueado'
+ */
+async function reiniciarRodada() {
+  const confirmou = confirm("Deseja realmente reiniciar a rodada? Todos os enigmas voltarão ao estado bloqueado para uma nova equipe.");
+  
+  if (!confirmou) return;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/reiniciar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      alert('Rodada reiniciada! Todos os enigmas foram bloqueados.');
+      await carregarAcervo();
+    } else {
+      alert('Não foi possível reiniciar a rodada na API.');
+    }
+  } catch (error) {
+    console.error('Erro ao reiniciar rodada:', error);
+    alert('Erro ao conectar com a API para reiniciar.');
   }
 }

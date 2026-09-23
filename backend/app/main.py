@@ -130,3 +130,9 @@ def destravar_enigma(req: DesbloqueioRequest):
                 return {"sucesso": False, "mensagem": "Chave incorreta. Tente novamente."}
                 
     raise HTTPException(status_code=404, detail="Memória não encontrada")
+
+@app.post("/api/reiniciar")
+def reiniciar_rodada():
+    for m in db_memorias:
+        m["desbloqueado"] = False
+    return {"sucesso": True, "mensagem": "Rodada reiniciada com sucesso"}
