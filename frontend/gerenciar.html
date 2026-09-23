@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciar Enigmas | Painel Administrativo</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #141110;
+      border: 1px solid var(--border-color, #333);
+      color: #fff;
+    }
+    .admin-table th, .admin-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #2a2523;
+    }
+    .admin-table th { background: #1c1816; color: var(--gold, #d4af37); }
+    .btn-action {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-right: 5px;
+    }
+    .btn-edit { background: #3498db; color: #fff; }
+    .btn-delete { background: #e74c3c; color: #fff; }
+    .btn-edit:hover { background: #2980b9; }
+    .btn-delete:hover { background: #c0392b; }
+
+    /* Modal de Edição */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #1c1816;
+      padding: 25px;
+      border-radius: 6px;
+      border: 1px solid var(--gold, #d4af37);
+      width: 90%;
+      max-width: 550px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-content input, .modal-content textarea {
+      width: 100%;
+      background: #100e0d;
+      border: 1px solid #443c39;
+      color: #fff;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" style="max-width: 900px; margin-top: 30px;">
+    <h1>Gerenciar Acervo Literário</h1>
+    <p class="subtitle">Editar e excluir enigmas registrados</p>
+
+    <div style="margin: 20px 0; display: flex; gap: 15px;">
+      <a href="cadastro.html" class="btn-action btn-edit" style="text-decoration: none; padding: 10px 15px;">+ Novo Registro</a>
+      <a href="index.html" style="color: var(--text-muted, #aaa); text-decoration: none; align-self: center;">Voltar ao Terminal</a>
+    </div>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Fase</th>
+          <th>Título</th>
+          <th>Voz</th>
+          <th>Chave</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-corpo">
+        <tr><td colspan="5" style="text-align: center; color: #888;">Carregando registros...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal para Edição -->
+  <div id="modal-edicao" class="modal">
+    <div class="modal-content">
+      <h3 style="color: var(--gold, #d4af37); margin-top: 0;">Editar Registro</h3>
+      <form id="form-edicao">
+        <input type="hidden" id="edit-id">
+        
+        <label>Título:</label>
+        <input type="text" id="edit-titulo" required>
+
+        <label>Personagem:</label>
+        <input type="text" id="edit-personagem" required>
+
+        <label>Chave Secreta:</label>
+        <input type="text" id="edit-chave" required>
+
+        <label>Prévia Bloqueada:</label>
+        <textarea id="edit-previa" rows="3" required></textarea>
+
+        <label>Texto Revelado:</label>
+        <textarea id="edit-texto" rows="3" required></textarea>
+
+        <label>Pista:</label>
+        <textarea id="edit-pista" rows="2" required></textarea>
+
+        <label>Ordem (Fase):</label>
+        <input type="number" id="edit-ordem" required>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+          <button type="button" class="btn-action" onclick="fecharModal()" style="background: #555; color: #fff;">Cancelar</button>
+          <button type="submit" class="btn-action btn-edit">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/js/api.js"></script>
+  <script>
+    let listaAtual = [];
+
+    async function carregarTabela() {
+      const tbody = document.getElementById('tabela-corpo');
+      try {
+        listaAtual = await fetchMemorias();
+        tbody.innerHTML = '';
+
+        if (!listaAtual || listaAtual.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado.</td></tr>';
+          return;
+        }
+
+        listaAtual.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.ordem}</td>
+            <td><strong>${item.titulo}</strong></td>
+            <td>${item.personagem}</td>
+            <td><code>${item.chave_secreta}</code></td>
+            <td>
+              <button class="btn-action btn-edit" onclick="abrirEdicao(${item.id})">Editar</button>
+              <button class="btn-action btn-delete" onclick="confirmarExclusao(${item.id}, '${item.titulo}')">Excluir</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff6b6b;">Erro ao carregar dados da API.</td></tr>';
+      }
+    }
+
+    async function confirmarExclusao(id, titulo) {
+      if (confirm(`Tem certeza que deseja excluir o registro "${titulo}"?`)) {
+        try {
+          await deletarMemoria(id);
+          alert('Registro excluído com sucesso!');
+          carregarTabela();
+        } catch (e) {
+          alert('Erro ao excluir registro.');
+        }
+      }
+    }
+
+    function abrirEdicao(id) {
+      const item = listaAtual.find(m => m.id === id);
+      if (!item) return;
+
+      document.getElementById('edit-id').value = item.id;
+      document.getElementById('edit-titulo').value = item.titulo;
+      document.getElementById('edit-personagem').value = item.personagem;
+      document.getElementById('edit-chave').value = item.chave_secreta;
+      document.getElementById('edit-previa').value = item.previa_bloqueada;
+      document.getElementById('edit-texto').value = item.texto_revelado;
+      document.getElementById('edit-pista').value = item.pista;
+      document.getElementById('edit-ordem').value = item.ordem;
+
+      document.getElementById('modal-edicao').style.display = 'flex';
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-edicao').style.display = 'none';
+    }
+
+    document.getElementById('form-edicao').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-id').value, 10);
+      const payload = {
+        titulo: document.getElementById('edit-titulo').value,
+        personagem: document.getElementById('edit-personagem').value,
+        chave_secreta: document.getElementById('edit-chave').value,
+        previa_bloqueada: document.getElementById('edit-previa').value,
+        texto_revelado: document.getElementById('edit-texto').value,
+        pista: document.getElementById('edit-pista').value,
+        ordem: parseInt(document.getElementById('edit-ordem').value, 10)
+      };
+
+      try {
+        await atualizarMemoria(id, payload);
+        alert('Registro atualizado com sucesso!');
+        fecharModal();
+        carregarTabela();
+      } catch (err) {
+        alert('Erro ao atualizar registro.');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', carregarTabela);
+  </script>
+</body>
+</html>
