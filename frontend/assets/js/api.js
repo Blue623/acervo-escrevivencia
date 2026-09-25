@@ -1,9 +1,9 @@
-// URL base oficial da API hospedada no Render
+// URLs oficiais no Render (HTTP e WebSocket com SSL)
 const API_BASE_URL = 'https://acervo-escrevivencia.onrender.com';
+const WS_BASE_URL = 'wss://acervo-escrevivencia.onrender.com/ws';
 
 /**
- * READ: Obtém todas as memórias cadastradas
- * GET /api/memorias
+ * READ: Busca lista de memórias
  */
 async function fetchMemorias() {
   const response = await fetch(`${API_BASE_URL}/api/memorias`, {
@@ -12,15 +12,14 @@ async function fetchMemorias() {
   });
 
   if (!response.ok) {
-    throw new Error(`Falha ao obter dados: ${response.status}`);
+    throw new Error(`Erro ao obter memórias: ${response.status}`);
   }
 
   return await response.json();
 }
 
 /**
- * CREATE: Cadastra uma nova memória
- * POST /api/memorias/cadastrar
+ * CREATE: Cadastra nova memória
  */
 async function cadastrarMemoria(payload) {
   const response = await fetch(`${API_BASE_URL}/api/memorias/cadastrar`, {
@@ -30,16 +29,15 @@ async function cadastrarMemoria(payload) {
   });
 
   if (!response.ok) {
-    const erroJson = await response.json();
-    throw new Error(JSON.stringify(erroJson.detail || erroJson));
+    const err = await response.json();
+    throw new Error(JSON.stringify(err.detail || err));
   }
 
   return await response.json();
 }
 
 /**
- * UPDATE: Atualiza os dados de uma memória existente
- * PUT /api/memorias/{id}
+ * UPDATE: Atualiza uma memória existente
  */
 async function atualizarMemoria(id, payload) {
   const response = await fetch(`${API_BASE_URL}/api/memorias/${id}`, {
@@ -49,16 +47,15 @@ async function atualizarMemoria(id, payload) {
   });
 
   if (!response.ok) {
-    const erroJson = await response.json();
-    throw new Error(JSON.stringify(erroJson.detail || erroJson));
+    const err = await response.json();
+    throw new Error(JSON.stringify(err.detail || err));
   }
 
   return await response.json();
 }
 
 /**
- * DELETE: Exclui uma memória pelo ID
- * DELETE /api/memorias/{id}
+ * DELETE: Remove uma memória
  */
 async function deletarMemoria(id) {
   const response = await fetch(`${API_BASE_URL}/api/memorias/${id}`, {
@@ -67,15 +64,14 @@ async function deletarMemoria(id) {
   });
 
   if (!response.ok) {
-    throw new Error(`Falha ao deletar memória: ${response.status}`);
+    throw new Error(`Erro ao excluir memória: ${response.status}`);
   }
 
   return await response.json();
 }
 
 /**
- * MECÂNICA ESCAPE ROOM: Envia a tentativa de desbloqueio
- * POST /api/desbloquear
+ * POST: Tenta destravar a memória com a chave
  */
 async function destravarMemoria(id, chave) {
   const response = await fetch(`${API_BASE_URL}/api/desbloquear`, {
@@ -88,7 +84,23 @@ async function destravarMemoria(id, chave) {
   });
 
   if (!response.ok) {
-    throw new Error(`Erro ao validar chave: ${response.status}`);
+    throw new Error(`Erro na validação: ${response.status}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * POST: Reinicia o status de todos os enigmas
+ */
+async function resetarRodadaApi() {
+  const response = await fetch(`${API_BASE_URL}/api/reiniciar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erro ao reiniciar rodada: ${response.status}`);
   }
 
   return await response.json();
