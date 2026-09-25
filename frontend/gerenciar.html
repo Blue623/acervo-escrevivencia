@@ -2,79 +2,172 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Gerenciar Enigmas | Painel Administrativo</title>
+  <title>Gerenciamento do Acervo | Painel do Mediador</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <style>
+    body {
+      background-color: #0d0b0a;
+      color: #e6e6e6;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .admin-container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+    .header-bar {
+      border-bottom: 1px solid #2e2622;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+    .header-bar h1 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.8rem;
+    }
+    .header-bar p {
+      margin: 5px 0 0 0;
+      color: #999;
+      font-size: 0.95rem;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-create { background: #d4af37; color: #141110; }
+    .btn-reset-round { background: #8b261d; color: #fff; border: 1px solid #a33025; }
+    .btn-link { background: transparent; color: #bbb; text-decoration: underline; margin-left: auto; }
+    
+    /* Tabela Administrativa (Read, Update, Delete) */
     .admin-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
       background: #141110;
-      border: 1px solid var(--border-color, #333);
-      color: #fff;
+      border: 1px solid #2e2622;
+      border-radius: 6px;
+      overflow: hidden;
     }
     .admin-table th, .admin-table td {
-      padding: 12px;
+      padding: 14px 16px;
       text-align: left;
-      border-bottom: 1px solid #2a2523;
+      border-bottom: 1px solid #221c19;
+      font-size: 0.9rem;
     }
-    .admin-table th { background: #1c1816; color: var(--gold, #d4af37); }
+    .admin-table th {
+      background: #1c1715;
+      color: #d4af37;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.8px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .status-locked { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+    .status-unlocked { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+
     .btn-action {
       padding: 6px 12px;
-      border: none;
       border-radius: 4px;
+      border: none;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
       margin-right: 5px;
     }
-    .btn-edit { background: #3498db; color: #fff; }
-    .btn-delete { background: #e74c3c; color: #fff; }
-    .btn-edit:hover { background: #2980b9; }
-    .btn-delete:hover { background: #c0392b; }
+    .btn-edit { background: #2980b9; color: #fff; }
+    .btn-delete { background: #c0392b; color: #fff; }
 
-    /* Modal de Edição */
+    /* Modal de Edição (Update) */
     .modal {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
       justify-content: center;
       align-items: center;
       z-index: 1000;
     }
-    .modal-content {
-      background: #1c1816;
-      padding: 25px;
+    .modal-box {
+      background: #1c1715;
+      border: 1px solid #d4af37;
       border-radius: 6px;
-      border: 1px solid var(--gold, #d4af37);
+      padding: 25px;
       width: 90%;
       max-width: 550px;
-      max-height: 90vh;
+      max-height: 85vh;
       overflow-y: auto;
     }
-    .modal-content input, .modal-content textarea {
+    .modal-box h3 { margin-top: 0; color: #d4af37; }
+    .modal-box label {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #bbb;
+      text-transform: uppercase;
+    }
+    .modal-box input, .modal-box textarea {
       width: 100%;
-      background: #100e0d;
-      border: 1px solid #443c39;
+      background: #0d0b0a;
+      border: 1px solid #3d322c;
       color: #fff;
-      padding: 8px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-      box-sizing: border-box;
+      padding: 8px 12px;
+      margin-top: 4px;
       border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container" style="max-width: 900px; margin-top: 30px;">
-    <h1>Gerenciar Acervo Literário</h1>
-    <p class="subtitle">Editar e excluir enigmas registrados</p>
 
-    <div style="margin: 20px 0; display: flex; gap: 15px;">
-      <a href="cadastro.html" class="btn-action btn-edit" style="text-decoration: none; padding: 10px 15px;">+ Novo Registro</a>
-      <a href="index.html" style="color: var(--text-muted, #aaa); text-decoration: none; align-self: center;">Voltar ao Terminal</a>
+  <div class="admin-container">
+    <div class="header-bar">
+      <h1>Painel de Controle do Mediador</h1>
+      <p>Gerenciamento do Acervo da Escrevivência e controle de rodadas do Escape Room</p>
     </div>
 
+    <!-- Barra de Ferramentas: CRUD + Reiniciar Rodada -->
+    <div class="toolbar">
+      <a href="cadastro.html" class="btn btn-create">+ Cadastrar Enigma</a>
+      
+      <!-- Botão de Reinicialização de Jogo -->
+      <button type="button" class="btn btn-reset-round" onclick="confirmarReiniciarRodada()">
+        🔄 Reiniciar Rodada (Bloquear Todos)
+      </button>
+
+      <a href="index.html" class="btn-link">Ir para o Terminal dos Jogadores →</a>
+    </div>
+
+    <!-- Tabela com READ, UPDATE e DELETE -->
     <table class="admin-table">
       <thead>
         <tr>
@@ -82,30 +175,34 @@
           <th>Título</th>
           <th>Voz</th>
           <th>Chave</th>
+          <th>Status do Jogo</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabela-corpo">
-        <tr><td colspan="5" style="text-align: center; color: #888;">Carregando registros...</td></tr>
+        <tr><td colspan="6" style="text-align: center; color: #888;">Carregando dados da API...</td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Modal para Edição -->
+  <!-- Modal para Update (Edição) -->
   <div id="modal-edicao" class="modal">
-    <div class="modal-content">
-      <h3 style="color: var(--gold, #d4af37); margin-top: 0;">Editar Registro</h3>
+    <div class="modal-box">
+      <h3>Editar Enigma Literário</h3>
       <form id="form-edicao">
         <input type="hidden" id="edit-id">
-        
+
         <label>Título:</label>
         <input type="text" id="edit-titulo" required>
 
-        <label>Personagem:</label>
+        <label>Voz (Personagem):</label>
         <input type="text" id="edit-personagem" required>
 
         <label>Chave Secreta:</label>
         <input type="text" id="edit-chave" required>
+
+        <label>Pista:</label>
+        <textarea id="edit-pista" rows="2" required></textarea>
 
         <label>Prévia Bloqueada:</label>
         <textarea id="edit-previa" rows="3" required></textarea>
@@ -113,15 +210,12 @@
         <label>Texto Revelado:</label>
         <textarea id="edit-texto" rows="3" required></textarea>
 
-        <label>Pista:</label>
-        <textarea id="edit-pista" rows="2" required></textarea>
-
-        <label>Ordem (Fase):</label>
+        <label>Fase (Ordem):</label>
         <input type="number" id="edit-ordem" required>
 
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
-          <button type="button" class="btn-action" onclick="fecharModal()" style="background: #555; color: #fff;">Cancelar</button>
-          <button type="submit" class="btn-action btn-edit">Salvar Alterações</button>
+        <div class="modal-footer">
+          <button type="button" class="btn" style="background: #444; color: #fff;" onclick="fecharModal()">Cancelar</button>
+          <button type="submit" class="btn btn-create">Salvar Alterações</button>
         </div>
       </form>
     </div>
@@ -129,61 +223,69 @@
 
   <script src="assets/js/api.js"></script>
   <script>
-    let listaAtual = [];
+    let memoriasCache = [];
 
+    // 1. READ: Carrega a tabela
     async function carregarTabela() {
       const tbody = document.getElementById('tabela-corpo');
       try {
-        listaAtual = await fetchMemorias();
+        memoriasCache = await fetchMemorias();
         tbody.innerHTML = '';
 
-        if (!listaAtual || listaAtual.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro encontrado.</td></tr>';
+        if (!memoriasCache || memoriasCache.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888;">Nenhum enigma registrado.</td></tr>';
           return;
         }
 
-        listaAtual.forEach(item => {
+        memoriasCache.forEach(item => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${item.ordem}</td>
-            <td><strong>${item.titulo}</strong></td>
+            <td><strong>#${item.ordem}</strong></td>
+            <td>${item.titulo}</td>
             <td>${item.personagem}</td>
-            <td><code>${item.chave_secreta}</code></td>
+            <td><code style="color: #d4af37;">${item.chave_secreta}</code></td>
             <td>
-              <button class="btn-action btn-edit" onclick="abrirEdicao(${item.id})">Editar</button>
+              <span class="status-badge ${item.desbloqueado ? 'status-unlocked' : 'status-locked'}">
+                ${item.desbloqueado ? 'Destravado' : 'Bloqueado'}
+              </span>
+            </td>
+            <td>
+              <button class="btn-action btn-edit" onclick="abrirModalEdicao(${item.id})">Editar</button>
               <button class="btn-action btn-delete" onclick="confirmarExclusao(${item.id}, '${item.titulo}')">Excluir</button>
             </td>
           `;
           tbody.appendChild(tr);
         });
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff6b6b;">Erro ao carregar dados da API.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #ff6b6b;">Erro ao conectar com a API.</td></tr>';
       }
     }
 
+    // 2. DELETE: Exclui um enigma
     async function confirmarExclusao(id, titulo) {
-      if (confirm(`Tem certeza que deseja excluir o registro "${titulo}"?`)) {
+      if (confirm(`Tem certeza que deseja EXCLUIR o enigma "${titulo}"? Essa ação não pode ser desfeita.`)) {
         try {
           await deletarMemoria(id);
-          alert('Registro excluído com sucesso!');
+          alert('Enigma removido com sucesso!');
           carregarTabela();
         } catch (e) {
-          alert('Erro ao excluir registro.');
+          alert('Erro ao excluir enigma.');
         }
       }
     }
 
-    function abrirEdicao(id) {
-      const item = listaAtual.find(m => m.id === id);
+    // 3. UPDATE: Abre o formulário preenchido
+    function abrirModalEdicao(id) {
+      const item = memoriasCache.find(m => m.id === id);
       if (!item) return;
 
       document.getElementById('edit-id').value = item.id;
       document.getElementById('edit-titulo').value = item.titulo;
       document.getElementById('edit-personagem').value = item.personagem;
       document.getElementById('edit-chave').value = item.chave_secreta;
+      document.getElementById('edit-pista').value = item.pista;
       document.getElementById('edit-previa').value = item.previa_bloqueada;
       document.getElementById('edit-texto').value = item.texto_revelado;
-      document.getElementById('edit-pista').value = item.pista;
       document.getElementById('edit-ordem').value = item.ordem;
 
       document.getElementById('modal-edicao').style.display = 'flex';
@@ -193,6 +295,7 @@
       document.getElementById('modal-edicao').style.display = 'none';
     }
 
+    // 3. UPDATE: Envia a atualização para a API
     document.getElementById('form-edicao').addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = parseInt(document.getElementById('edit-id').value, 10);
@@ -200,21 +303,39 @@
         titulo: document.getElementById('edit-titulo').value,
         personagem: document.getElementById('edit-personagem').value,
         chave_secreta: document.getElementById('edit-chave').value,
+        pista: document.getElementById('edit-pista').value,
         previa_bloqueada: document.getElementById('edit-previa').value,
         texto_revelado: document.getElementById('edit-texto').value,
-        pista: document.getElementById('edit-pista').value,
         ordem: parseInt(document.getElementById('edit-ordem').value, 10)
       };
 
       try {
         await atualizarMemoria(id, payload);
-        alert('Registro atualizado com sucesso!');
+        alert('Enigma atualizado com sucesso!');
         fecharModal();
         carregarTabela();
       } catch (err) {
-        alert('Erro ao atualizar registro.');
+        alert('Erro ao atualizar dados do enigma.');
       }
     });
+
+    // 4. RESET DA RODADA: Bloqueia todos os enigmas para um novo jogo
+    async function confirmarReiniciarRodada() {
+      const ok = confirm(
+        "Deseja realmente REINICIAR A RODADA?\n\n" +
+        "Isso bloqueará todos os enigmas instantaneamente na tela de todos os jogadores conectados via WebSocket."
+      );
+
+      if (!ok) return;
+
+      try {
+        await resetarRodadaApi();
+        alert('Rodada reiniciada com sucesso! Todos os enigmas voltaram ao estado bloqueado.');
+        carregarTabela();
+      } catch (err) {
+        alert('Erro ao reiniciar a rodada.');
+      }
+    }
 
     document.addEventListener('DOMContentLoaded', carregarTabela);
   </script>
